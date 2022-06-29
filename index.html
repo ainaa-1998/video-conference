@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="jscript.js"></script>
+    <title>Video Conference</title>
+
+</head>
+
+<body>
+    <div class="header">
+        <h1>Holaa Video Conference</h1>
+        <p>by Nur Ainaa Najihah</p>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light ">
+        <a class="navbar-brand" href="https://a-plus.cf/Holaa.html">Holaa</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-item nav-link active" href="https://a-plus.cf/Holaa/VideoConference">Video Conference<span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link" href="https://a-plus.cf/Holaa/textMessaging">Text Messaging & File Sharing</a>
+            <a class="nav-item nav-link" href="https://a-plus.cf/Holaa/EventScheduler">Event Scheduler</a>
+            <a class="nav-item nav-link" href="https://a-plus.cf/Holaa/banner">Banner Management</a>
+          </div>
+        </div>
+
+      </nav>
+
+    <div class="row">
+        
+        <div class="main">
+            <div class="container"> 
+                <iframe class="responsive-iframe" src="video/Malaysia.mp4" type="video/mp4"></iframe>
+            </div>
+            <br>
+            <div class="button-container">
+                <button><i onclick = "mic(this)" class="bi bi-mic-mute"></i></button>
+                <p>&ensp;</p>
+                <button><i onclick = "phone(this)" class="bi bi-telephone"></i></button>
+                <p>&ensp;</p>
+                <button><i onclick = "camera(this)" class="bi bi-camera-video-off"></i></button>
+            </div>
+            
+        </div>
+        <div class="side">
+            <div class="box">
+                <p>Chat</p>
+
+                <input type="text" id="chat" value="Hi...">
+                <button onclick="sendChat()">Send</button>
+
+                <br><br>
+
+                <div class="chatbox">
+                    <p id="demo"></p>
+                </div>
+
+            </div>
+            
+            
+        </div>
+    </div>
+    
+    <div class="breakline">
+        <h2>Participants</h2>
+    </div>
+
+    <div class="PArea">
+        <form id="AddParticipant">
+            <label for="name&matric">Enter name & matric no. : </label>
+            <input type="text" name="name" id="name" placeholder="name">
+            <input type="text" name="matric" id="matric" placeholder="matric no.">
+            <button type="button" id="submitParticipant">Add</button>
+            <button type="button" id="deleteParticipant">Delete</button>
+            <br>
+        </form>
+    </div>
+
+    <div class="container1">
+        <button type="button" id="viewParticipant">View Participants</button>
+        <button type="button" id="deleteAll">Delete All Participants</button>
+        <div class="participant" id="Participant"></div>
+    </div>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <script>
+        $('#submitParticipant').on('click' , function(){
+
+            var markers = {
+                "name": $('#name').val(),
+                "matric": $('#matric').val()
+            };
+
+            $.ajax({
+                    url:"createParticipant.php",
+                    method:"POST",
+                    data: JSON.stringify(markers),
+                    dataType: "json",
+                    encode: true,
+                    processData: false,
+                    headers: {
+                        'Content-Type': "application/json"
+                    },
+                    success: (resultsJSON) => {
+
+                        $('#result').html(resultsJSON[0].message);
+                        alert("Participant Added !");
+
+                    },
+                    error: err => console.error(err)
+                })
+        });
+    </script>
+
+<script>
+    $('#deleteParticipant').on('click' , function(){
+
+        var markers = {
+            "name": $('#name').val(),
+            "matric": $('#matric').val()
+        };
+
+        $.ajax({
+                url:"deleteParticipant.php",
+                method:"DELETE",
+                dataType: "json",
+                data: JSON.stringify(markers),
+                encode: true,
+                processData: false,
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                success: (resultsJSON) => {
+                    alert("Participant Deleted !");
+
+                },
+                error: err => console.error(err)
+            })
+    });
+</script>
+    
+    <script>
+        $('#viewParticipant').on('click', function() {
+
+            $.ajax({
+                url:"displayParticipant.php",
+                method:"GET",
+                encode: true,
+                processData: false,
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                success: (resultsJSON) => {
+
+                $('#Participant').html('');
+
+                if(Array.isArray(resultsJSON[0].message)){
+                    resultsJSON[0].message.map(participant => {
+                        $('#Participant').append('<img src="img/p.jpg" class="img-fluid" alt="Participant">' + ' ' + participant.name + '  ( ' + participant.matric + ' )'  + '<br>');
+                    })
+                }
+                else{
+                    $('#Participant').html(resultsJSON[0].message);
+                }
+
+                },
+                error: err => console.error(err)
+            })
+        });
+    </script>
+
+<script>
+    $('#deleteAll').on('click' , function(){
+
+        $.ajax({
+                url:"deleteAll.php",
+                method:"DELETE",
+                dataType: "json",
+                encode: true,
+                processData: false,
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                success: (resultsJSON) => {
+                    alert("Participants Deleted !");
+
+                },
+                error: err => console.error(err)
+            })
+    });
+</script>
+
+</body>
+</html>
